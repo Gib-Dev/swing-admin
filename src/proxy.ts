@@ -24,8 +24,8 @@ function isAdminPath(pathname: string): boolean {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip API routes except for specific handlers
-  if (pathname.startsWith("/api") && !pathname.startsWith("/api/auth")) {
+  // Skip ALL API routes - they don't need i18n
+  if (pathname.startsWith("/api")) {
     return NextResponse.next();
   }
 
