@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const createTournamentSchema = z.object({
+const baseTournamentSchema = z.object({
   name: z
     .string()
     .min(1, "Tournament name is required")
@@ -21,14 +21,19 @@ export const createTournamentSchema = z.object({
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   currency: z.enum(["CAD", "USD"]).default("CAD"),
-}).refine((data) => data.endDate >= data.startDate, {
-  message: "End date must be after start date",
-  path: ["endDate"],
 });
+
+export const createTournamentSchema = baseTournamentSchema.refine(
+  (data) => data.endDate >= data.startDate,
+  {
+    message: "End date must be after start date",
+    path: ["endDate"],
+  }
+);
 
 export type CreateTournamentInput = z.infer<typeof createTournamentSchema>;
 
-export const updateTournamentSchema = createTournamentSchema.partial().extend({
+export const updateTournamentSchema = baseTournamentSchema.partial().extend({
   registrationOpen: z.boolean().optional(),
 });
 

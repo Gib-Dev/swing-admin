@@ -1,4 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getDb } from "@/lib/db";
+import { teams, players, payments, tournaments, registrations } from "@/lib/db/schema";
+import { count, sum, eq, desc } from "drizzle-orm";
 import {
   Card,
   CardContent,
@@ -19,6 +22,58 @@ export async function generateMetadata({
   };
 }
 
+async function getDashboardStats() {
+  const db = getDb();
+
+  // Get all stats in parallel
+  const [
+    teamsResult,
+    playersResult,
+    revenueResult,
+    pendingResult,
+    activeTournament,
+    recentRegs,
+  ] = await Promise.all([
+    // Total teams
+    db.select({ count: count() }).from(teams),
+    // Total players
+    db.select({ count: count() }).from(players),
+    // Total revenue (completed payments)
+    db
+      .select({ total: sum(payments.amount) })
+      .from(payments)
+      .where(eq(payments.status, "completed")),
+    // Pending payments
+    db
+      .select({ count: count() })
+      .from(payments)
+      .where(eq(payments.status, "pending")),
+    // Get first tournament for max teams and registration status
+    db.query.tournaments.findFirst({
+      orderBy: [desc(tournaments.createdAt)],
+    }),
+    // Recent registrations
+    db.query.registrations.findMany({
+      limit: 5,
+      orderBy: [desc(registrations.createdAt)],
+      with: {
+        tournament: true,
+      },
+    }),
+  ]);
+
+  return {
+    totalTeams: teamsResult[0]?.count ?? 0,
+    totalPlayers: playersResult[0]?.count ?? 0,
+    totalRevenue: parseFloat(revenueResult[0]?.total ?? "0"),
+    pendingPayments: pendingResult[0]?.count ?? 0,
+    maxTeams: activeTournament?.maxTeams ?? 125,
+    registrationOpen: activeTournament?.registrationOpen ?? false,
+    currency: activeTournament?.currency ?? "CAD",
+    recentRegistrations: recentRegs,
+  };
+}
+
 export default async function DashboardPage({
   params,
 }: {
@@ -28,6 +83,14 @@ export default async function DashboardPage({
   setRequestLocale(locale);
 
   const t = await getTranslations("dashboard");
+  const stats = await getDashboardStats();
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: stats.currency,
+    }).format(amount);
+  };
 
   return (
     <div className="space-y-6">
@@ -58,8 +121,10 @@ export default async function DashboardPage({
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">of 125 max</p>
+            <div className="text-2xl font-bold">{stats.totalTeams}</div>
+            <p className="text-xs text-muted-foreground">
+              of {stats.maxTeams} max
+            </p>
           </CardContent>
         </Card>
 
@@ -83,7 +148,7 @@ export default async function DashboardPage({
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.totalPlayers}</div>
             <p className="text-xs text-muted-foreground">registered</p>
           </CardContent>
         </Card>
@@ -107,8 +172,10 @@ export default async function DashboardPage({
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$0.00</div>
-            <p className="text-xs text-muted-foreground">CAD</p>
+            <div className="text-2xl font-bold">
+              {formatCurrency(stats.totalRevenue)}
+            </div>
+            <p className="text-xs text-muted-foreground">{stats.currency}</p>
           </CardContent>
         </Card>
 
@@ -132,7 +199,7 @@ export default async function DashboardPage({
             </svg>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
+            <div className="text-2xl font-bold">{stats.pendingPayments}</div>
             <p className="text-xs text-muted-foreground">awaiting payment</p>
           </CardContent>
         </Card>
@@ -145,9 +212,30 @@ export default async function DashboardPage({
             <CardDescription>Latest tournament registrations</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              No registrations yet.
-            </p>
+            {stats.recentRegistrations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No registrations yet.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {stats.recentRegistrations.map((reg) => (
+                  <div
+                    key={reg.id}
+                    className="flex items-center justify-between text-sm"
+                  >
+                    <div>
+                      <p className="font-medium">{reg.tournament.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {reg.type} registration
+                      </p>
+                    </div>
+                    <span className="text-muted-foreground">
+                      {new Date(reg.createdAt).toLocaleDateString(locale)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -158,8 +246,14 @@ export default async function DashboardPage({
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-red-500" />
-              <span className="text-sm font-medium">{t("closed")}</span>
+              <div
+                className={`h-3 w-3 rounded-full ${
+                  stats.registrationOpen ? "bg-green-500" : "bg-red-500"
+                }`}
+              />
+              <span className="text-sm font-medium">
+                {stats.registrationOpen ? t("open") : t("closed")}
+              </span>
             </div>
           </CardContent>
         </Card>

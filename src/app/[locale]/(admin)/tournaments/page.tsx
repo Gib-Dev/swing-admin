@@ -112,7 +112,7 @@ export default async function TournamentsPage({
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
-                      <span>0 / {tournament.maxTeams} {tCommon("teams") ?? "teams"}</span>
+                      <span>0 / {tournament.maxTeams} teams</span>
                     </div>
                   </div>
                 </CardContent>
