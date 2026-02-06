@@ -30,7 +30,8 @@
     "loginDescription": "Entrez vos identifiants pour accéder au tableau de bord",
     "loginButton": "Se connecter",
     "loginError": "Courriel ou mot de passe invalide",
-    "forgotPassword": "Mot de passe oublié?"
+    "forgotPassword": "Mot de passe oublié?",
+    "profile": "Profil"
   },
   "navigation": {
     "dashboard": "Tableau de bord",

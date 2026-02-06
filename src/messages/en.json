@@ -30,7 +30,8 @@
     "loginDescription": "Enter your credentials to access the admin dashboard",
     "loginButton": "Sign In",
     "loginError": "Invalid email or password",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    "profile": "Profile"
   },
   "navigation": {
     "dashboard": "Dashboard",
