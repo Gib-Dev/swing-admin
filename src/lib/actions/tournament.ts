@@ -97,6 +97,37 @@ export async function updateTournament(
   }
 }
 
+export async function deleteTournament(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const db = getDb();
+
+    const existing = await db.query.tournaments.findFirst({
+      where: eq(tournaments.id, id),
+    });
+
+    if (!existing) {
+      return { success: false, error: "Tournament not found" };
+    }
+
+    await db.delete(tournaments).where(eq(tournaments.id, id));
+
+    revalidatePath("/tournaments");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete tournament:", error);
+    return { success: false, error: "Failed to delete tournament" };
+  }
+}
+
 export async function toggleRegistration(
   id: string
 ): Promise<{ success: boolean; error?: string; isOpen?: boolean }> {

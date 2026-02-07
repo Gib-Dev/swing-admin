@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getDb } from "@/lib/db";
 import { tournaments } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, and, ilike, eq } from "drizzle-orm";
 import { Link } from "@/i18n/routing";
 import {
   Card,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Users, Plus } from "lucide-react";
+import { TournamentFilters } from "@/components/admin/tournament-filters";
 
 export async function generateMetadata({
   params,
@@ -27,17 +28,31 @@ export async function generateMetadata({
 
 export default async function TournamentsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const { locale } = await params;
+  const { q, status } = await searchParams;
   setRequestLocale(locale);
 
   const t = await getTranslations("tournament");
-  const tCommon = await getTranslations("common");
 
   const db = getDb();
+
+  const conditions = [];
+  if (q) {
+    conditions.push(ilike(tournaments.name, `%${q}%`));
+  }
+  if (status === "open") {
+    conditions.push(eq(tournaments.registrationOpen, true));
+  } else if (status === "closed") {
+    conditions.push(eq(tournaments.registrationOpen, false));
+  }
+
   const allTournaments = await db.query.tournaments.findMany({
+    where: conditions.length > 0 ? and(...conditions) : undefined,
     orderBy: [desc(tournaments.startDate)],
   });
 
@@ -58,8 +73,14 @@ export default async function TournamentsPage({
         </Link>
       </div>
 
+      <TournamentFilters />
+
       {allTournaments.length === 0 ? (
-        <EmptyState t={t} />
+        q || status ? (
+          <NoResults t={t} />
+        ) : (
+          <EmptyState t={t} />
+        )
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {allTournaments.map((tournament) => (
@@ -141,6 +162,20 @@ function EmptyState({ t }: { t: (key: string) => string }) {
           {t("create")}
         </Button>
       </Link>
+    </Card>
+  );
+}
+
+function NoResults({ t }: { t: (key: string) => string }) {
+  return (
+    <Card className="flex flex-col items-center justify-center p-12 text-center">
+      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+        <CalendarDays className="h-6 w-6 text-muted-foreground" />
+      </div>
+      <h3 className="mb-2 text-lg font-semibold">{t("noResults")}</h3>
+      <p className="text-sm text-muted-foreground">
+        {t("noResultsDescription")}
+      </p>
     </Card>
   );
 }

@@ -1,12 +1,20 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
-import { tournaments } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { tournaments, sponsorshipTiers } from "@/lib/db/schema";
+import { eq, asc } from "drizzle-orm";
 import { TournamentForm } from "@/components/admin/tournament-form";
 import { RegistrationToggle } from "@/components/admin/registration-toggle";
-import { updateTournament, toggleRegistration } from "@/lib/actions/tournament";
+import { DeleteTournamentButton } from "@/components/admin/delete-tournament-button";
+import { SponsorshipTierList } from "@/components/admin/sponsorship-tier-list";
+import { updateTournament, toggleRegistration, deleteTournament } from "@/lib/actions/tournament";
+import {
+  createSponsorshipTier,
+  updateSponsorshipTier,
+  deleteSponsorshipTier,
+} from "@/lib/actions/sponsorship-tier";
 import type { CreateTournamentInput } from "@/lib/validations/tournament";
+import type { CreateSponsorshipTierInput } from "@/lib/validations/sponsorship";
 
 export async function generateMetadata({
   params,
@@ -39,9 +47,16 @@ export default async function TournamentEditPage({
   setRequestLocale(locale);
 
   const db = getDb();
-  const tournament = await db.query.tournaments.findFirst({
-    where: eq(tournaments.id, id),
-  });
+
+  const [tournament, tiers] = await Promise.all([
+    db.query.tournaments.findFirst({
+      where: eq(tournaments.id, id),
+    }),
+    db.query.sponsorshipTiers.findMany({
+      where: eq(sponsorshipTiers.tournamentId, id),
+      orderBy: [asc(sponsorshipTiers.sortOrder)],
+    }),
+  ]);
 
   if (!tournament) {
     notFound();
@@ -64,14 +79,33 @@ export default async function TournamentEditPage({
     return updateTournament(id, data);
   }
 
+  async function handleUpdateTier(tierId: string, data: CreateSponsorshipTierInput) {
+    "use server";
+    return updateSponsorshipTier(tierId, data);
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <RegistrationToggle
-        tournamentId={tournament.id}
-        isOpen={tournament.registrationOpen}
-        onToggle={toggleRegistration}
-      />
+      <div className="flex items-center justify-between">
+        <RegistrationToggle
+          tournamentId={tournament.id}
+          isOpen={tournament.registrationOpen}
+          onToggle={toggleRegistration}
+        />
+        <DeleteTournamentButton
+          tournamentId={tournament.id}
+          tournamentName={tournament.name}
+          onDelete={deleteTournament}
+        />
+      </div>
       <TournamentForm initialData={initialData} onSubmit={handleUpdate} />
+      <SponsorshipTierList
+        tournamentId={tournament.id}
+        tiers={tiers}
+        onCreate={createSponsorshipTier}
+        onUpdate={handleUpdateTier}
+        onDelete={deleteSponsorshipTier}
+      />
     </div>
   );
 }
