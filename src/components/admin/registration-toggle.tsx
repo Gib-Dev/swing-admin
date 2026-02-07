@@ -46,25 +46,26 @@ export function RegistrationToggle({
 
   return (
     <Card>
-      <CardContent className="flex items-center justify-between p-4">
+      <CardContent className="flex items-center justify-between gap-4 p-4">
         <div className="flex items-center gap-3">
           <div
-            className={`h-3 w-3 rounded-full ${
+            className={`h-3 w-3 shrink-0 rounded-full ${
               isOpen ? "bg-green-500" : "bg-red-500"
             }`}
           />
           <div>
-            <p className="font-medium">{t("registrationOpen")}</p>
+            <p className="font-medium">
+              {isOpen ? t("statusOpen") : t("statusClosed")}
+            </p>
             <p className="text-sm text-muted-foreground">
-              {isOpen
-                ? "Players can register for this tournament"
-                : "Registration is currently closed"}
+              {isOpen ? t("statusOpenDesc") : t("statusClosedDesc")}
             </p>
           </div>
         </div>
         <Button
           variant={isOpen ? "destructive" : "default"}
           size="sm"
+          className="shrink-0"
           onClick={handleToggle}
           disabled={isLoading}
         >

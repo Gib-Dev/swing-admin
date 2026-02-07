@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const navItems: {
+  key: string;
+  href: string;
+  icon: React.ReactNode;
+  superAdminOnly?: boolean;
+}[] = [
   {
     key: "dashboard",
     href: "/dashboard",
@@ -98,6 +103,7 @@ const navItems = [
   {
     key: "users",
     href: "/users",
+    superAdminOnly: true,
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -120,9 +126,13 @@ const navItems = [
   },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ userRole }: { userRole?: string }) {
   const t = useTranslations("navigation");
   const pathname = usePathname();
+
+  const visibleItems = navItems.filter(
+    (item) => !item.superAdminOnly || userRole === "super_admin"
+  );
 
   return (
     <aside className="hidden w-64 flex-col border-r bg-card lg:flex">
@@ -131,7 +141,7 @@ export function AdminSidebar() {
         <span className="text-lg font-bold">SwingAdmin</span>
       </div>
       <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const isActive =
             pathname.includes(item.href) &&
             (item.href === "/dashboard"

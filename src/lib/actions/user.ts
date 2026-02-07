@@ -2,10 +2,15 @@
 
 import { getDb } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { createUserSchema, type CreateUserInput } from "@/lib/validations/auth";
+import {
+  createUserSchema,
+  updateUserSchema,
+  type CreateUserInput,
+  type UpdateUserInput,
+} from "@/lib/validations/auth";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export async function createUser(
@@ -14,7 +19,7 @@ export async function createUser(
   try {
     const session = await auth();
 
-    if (!session?.user) {
+    if (!session?.user || session.user.role !== "super_admin") {
       return { success: false, error: "Unauthorized" };
     }
 
@@ -52,13 +57,79 @@ export async function createUser(
   }
 }
 
+export async function updateUser(
+  id: string,
+  data: UpdateUserInput
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+
+    if (!session?.user || session.user.role !== "super_admin") {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const validated = updateUserSchema.safeParse(data);
+
+    if (!validated.success) {
+      return { success: false, error: "Invalid data" };
+    }
+
+    const db = getDb();
+
+    const existing = await db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
+
+    if (!existing) {
+      return { success: false, error: "User not found" };
+    }
+
+    // Check email uniqueness if changed
+    if (validated.data.email !== existing.email) {
+      const emailTaken = await db.query.users.findFirst({
+        where: and(
+          eq(users.email, validated.data.email),
+          ne(users.id, id)
+        ),
+      });
+
+      if (emailTaken) {
+        return { success: false, error: "A user with this email already exists" };
+      }
+    }
+
+    const passwordHash =
+      validated.data.password && validated.data.password.length >= 8
+        ? await bcrypt.hash(validated.data.password, 10)
+        : undefined;
+
+    await db
+      .update(users)
+      .set({
+        name: validated.data.name,
+        email: validated.data.email,
+        role: validated.data.role,
+        updatedAt: new Date(),
+        ...(passwordHash ? { passwordHash } : {}),
+      })
+      .where(eq(users.id, id));
+
+    revalidatePath("/users");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update user:", error);
+    return { success: false, error: "Failed to update user" };
+  }
+}
+
 export async function deleteUser(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
 
-    if (!session?.user) {
+    if (!session?.user || session.user.role !== "super_admin") {
       return { success: false, error: "Unauthorized" };
     }
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Plus, Trash2, Loader2, Shield, ShieldCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Shield, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { CreateUserForm } from "./create-user-form";
-import type { CreateUserInput } from "@/lib/validations/auth";
+import { EditUserForm } from "./edit-user-form";
+import type { CreateUserInput, UpdateUserInput } from "@/lib/validations/auth";
 
 interface User {
   id: string;
@@ -38,6 +39,7 @@ interface UserListProps {
   users: User[];
   currentUserId: string;
   onCreate: (data: CreateUserInput) => Promise<{ success: boolean; error?: string }>;
+  onUpdate: (id: string, data: UpdateUserInput) => Promise<{ success: boolean; error?: string }>;
   onDelete: (id: string) => Promise<{ success: boolean; error?: string }>;
 }
 
@@ -45,11 +47,13 @@ export function UserList({
   users,
   currentUserId,
   onCreate,
+  onUpdate,
   onDelete,
 }: UserListProps) {
   const t = useTranslations("users");
   const tc = useTranslations("common");
-  const [showForm, setShowForm] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -81,8 +85,8 @@ export function UserList({
             <CardTitle>{t("title")}</CardTitle>
             <CardDescription>{t("description")}</CardDescription>
           </div>
-          {!showForm && (
-            <Button size="sm" onClick={() => setShowForm(true)}>
+          {!showCreateForm && !editingUser && (
+            <Button size="sm" onClick={() => setShowCreateForm(true)}>
               <Plus className="mr-2 h-4 w-4" />
               {t("createUser")}
             </Button>
@@ -90,11 +94,22 @@ export function UserList({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {showForm && (
+        {showCreateForm && (
           <div className="rounded-lg border p-4">
             <CreateUserForm
               onSubmit={onCreate}
-              onCancel={() => setShowForm(false)}
+              onCancel={() => setShowCreateForm(false)}
+            />
+          </div>
+        )}
+
+        {editingUser && (
+          <div className="rounded-lg border p-4">
+            <h4 className="mb-3 font-medium">{t("editUser")}</h4>
+            <EditUserForm
+              user={editingUser}
+              onSubmit={onUpdate}
+              onCancel={() => setEditingUser(null)}
             />
           </div>
         )}
@@ -128,15 +143,27 @@ export function UserList({
                   </p>
                 </div>
               </div>
-              {user.id !== currentUserId && (
+              <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setDeletingUserId(user.id)}
+                  onClick={() => {
+                    setEditingUser(user);
+                    setShowCreateForm(false);
+                  }}
                 >
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                  <Pencil className="h-4 w-4" />
                 </Button>
-              )}
+                {user.id !== currentUserId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeletingUserId(user.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>

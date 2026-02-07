@@ -14,6 +14,8 @@ import {
   deleteSponsorshipTier,
   reorderSponsorshipTiers,
 } from "@/lib/actions/sponsorship-tier";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportTournamentDetailCsv } from "@/lib/actions/export";
 import type { CreateTournamentInput } from "@/lib/validations/tournament";
 import type { CreateSponsorshipTierInput } from "@/lib/validations/sponsorship";
 
@@ -102,6 +104,11 @@ export default async function TournamentEditPage({
     return updateSponsorshipTier(tierId, data);
   }
 
+  async function handleExport() {
+    "use server";
+    return exportTournamentDetailCsv(id);
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
@@ -110,11 +117,14 @@ export default async function TournamentEditPage({
           isOpen={tournament.registrationOpen}
           onToggle={toggleRegistration}
         />
-        <DeleteTournamentButton
-          tournamentId={tournament.id}
-          tournamentName={tournament.name}
-          onDelete={deleteTournament}
-        />
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={handleExport} />
+          <DeleteTournamentButton
+            tournamentId={tournament.id}
+            tournamentName={tournament.name}
+            onDelete={deleteTournament}
+          />
+        </div>
       </div>
       <TournamentForm initialData={initialData} onSubmit={handleUpdate} />
       <SponsorshipTierList

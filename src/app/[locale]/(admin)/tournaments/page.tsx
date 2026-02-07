@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { CalendarDays, MapPin, Users, Plus } from "lucide-react";
 import { TournamentFilters } from "@/components/admin/tournament-filters";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportTournamentsCsv } from "@/lib/actions/export";
 
 export async function generateMetadata({
   params,
@@ -65,12 +67,15 @@ export default async function TournamentsPage({
             Manage your golf tournaments
           </p>
         </div>
-        <Link href="/tournaments/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            {t("create")}
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <ExportButton onExport={exportTournamentsCsv} filename="tournaments.csv" />
+          <Link href="/tournaments/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              {t("create")}
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <TournamentFilters />

@@ -5,7 +5,7 @@ import { asc } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { UserList } from "@/components/admin/user-list";
-import { createUser, deleteUser } from "@/lib/actions/user";
+import { createUser, updateUser, deleteUser } from "@/lib/actions/user";
 
 export async function generateMetadata({
   params,
@@ -33,6 +33,10 @@ export default async function UsersPage({
     redirect("/login");
   }
 
+  if (session.user.role !== "super_admin") {
+    redirect("/dashboard");
+  }
+
   const db = getDb();
   const allUsers = await db.query.users.findMany({
     orderBy: [asc(users.createdAt)],
@@ -52,6 +56,7 @@ export default async function UsersPage({
         users={userList}
         currentUserId={session.user.id}
         onCreate={createUser}
+        onUpdate={updateUser}
         onDelete={deleteUser}
       />
     </div>
