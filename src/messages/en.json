@@ -137,6 +137,8 @@
     "sortOrderHint": "Lower numbers appear first",
     "quotaLabel": "Quota: {quota}",
     "quotaRemaining": "{remaining} of {total} remaining",
+    "soldCount": "{sold} sold",
+    "unlimited": "Unlimited quota",
     "soldOut": "Sold Out",
     "noTiers": "No sponsorship tiers yet",
     "tierCreated": "Sponsorship tier created",
@@ -185,6 +187,23 @@
     "failedMessage": "There was an error processing your payment. Please try again.",
     "returnHome": "Return to Home",
     "tryAgain": "Try Again"
+  },
+  "users": {
+    "title": "Admin Users",
+    "description": "Manage admin accounts for the dashboard",
+    "createUser": "Add User",
+    "name": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "role": "Role",
+    "selectRole": "Select role",
+    "roleAdmin": "Admin",
+    "roleSuperAdmin": "Super Admin",
+    "you": "You",
+    "userCreated": "User created successfully",
+    "userDeleted": "User deleted successfully",
+    "deleteTitle": "Delete User",
+    "deleteConfirm": "Are you sure you want to delete this user? They will lose access to the admin dashboard."
   },
   "validation": {
     "required": "This field is required",

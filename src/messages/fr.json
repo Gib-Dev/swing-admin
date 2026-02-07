@@ -137,6 +137,8 @@
     "sortOrderHint": "Les numéros les plus bas apparaissent en premier",
     "quotaLabel": "Quota : {quota}",
     "quotaRemaining": "{remaining} sur {total} restants",
+    "soldCount": "{sold} vendu(s)",
+    "unlimited": "Quota illimité",
     "soldOut": "Épuisé",
     "noTiers": "Aucun niveau de commandite",
     "tierCreated": "Niveau de commandite créé",
@@ -185,6 +187,23 @@
     "failedMessage": "Une erreur est survenue lors du traitement de votre paiement. Veuillez réessayer.",
     "returnHome": "Retour à l'accueil",
     "tryAgain": "Réessayer"
+  },
+  "users": {
+    "title": "Utilisateurs admin",
+    "description": "Gérer les comptes administrateurs du tableau de bord",
+    "createUser": "Ajouter un utilisateur",
+    "name": "Nom complet",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "role": "Rôle",
+    "selectRole": "Sélectionner un rôle",
+    "roleAdmin": "Administrateur",
+    "roleSuperAdmin": "Super administrateur",
+    "you": "Vous",
+    "userCreated": "Utilisateur créé avec succès",
+    "userDeleted": "Utilisateur supprimé avec succès",
+    "deleteTitle": "Supprimer l'utilisateur",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet utilisateur? Il perdra l'accès au tableau de bord."
   },
   "validation": {
     "required": "Ce champ est requis",

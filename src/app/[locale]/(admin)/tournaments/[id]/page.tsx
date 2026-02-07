@@ -1,8 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { getDb } from "@/lib/db";
-import { tournaments, sponsorshipTiers } from "@/lib/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { tournaments, sponsorshipTiers, sponsorships } from "@/lib/db/schema";
+import { eq, asc, count } from "drizzle-orm";
 import { TournamentForm } from "@/components/admin/tournament-form";
 import { RegistrationToggle } from "@/components/admin/registration-toggle";
 import { DeleteTournamentButton } from "@/components/admin/delete-tournament-button";
@@ -12,6 +12,7 @@ import {
   createSponsorshipTier,
   updateSponsorshipTier,
   deleteSponsorshipTier,
+  reorderSponsorshipTiers,
 } from "@/lib/actions/sponsorship-tier";
 import type { CreateTournamentInput } from "@/lib/validations/tournament";
 import type { CreateSponsorshipTierInput } from "@/lib/validations/sponsorship";
@@ -48,7 +49,7 @@ export default async function TournamentEditPage({
 
   const db = getDb();
 
-  const [tournament, tiers] = await Promise.all([
+  const [tournament, tiers, soldCounts] = await Promise.all([
     db.query.tournaments.findFirst({
       where: eq(tournaments.id, id),
     }),
@@ -56,7 +57,24 @@ export default async function TournamentEditPage({
       where: eq(sponsorshipTiers.tournamentId, id),
       orderBy: [asc(sponsorshipTiers.sortOrder)],
     }),
+    db
+      .select({
+        sponsorshipTierId: sponsorships.sponsorshipTierId,
+        sold: count(),
+      })
+      .from(sponsorships)
+      .innerJoin(
+        sponsorshipTiers,
+        eq(sponsorships.sponsorshipTierId, sponsorshipTiers.id)
+      )
+      .where(eq(sponsorshipTiers.tournamentId, id))
+      .groupBy(sponsorships.sponsorshipTierId),
   ]);
+
+  const soldMap: Record<string, number> = {};
+  for (const row of soldCounts) {
+    soldMap[row.sponsorshipTierId] = row.sold;
+  }
 
   if (!tournament) {
     notFound();
@@ -102,9 +120,11 @@ export default async function TournamentEditPage({
       <SponsorshipTierList
         tournamentId={tournament.id}
         tiers={tiers}
+        soldMap={soldMap}
         onCreate={createSponsorshipTier}
         onUpdate={handleUpdateTier}
         onDelete={deleteSponsorshipTier}
+        onReorder={reorderSponsorshipTiers}
       />
     </div>
   );

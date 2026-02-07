@@ -10,7 +10,7 @@ import {
 } from "@/lib/validations/sponsorship";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 
 export async function createSponsorshipTier(
   data: CreateSponsorshipTierInput
@@ -93,6 +93,42 @@ export async function updateSponsorshipTier(
   } catch (error) {
     console.error("Failed to update sponsorship tier:", error);
     return { success: false, error: "Failed to update sponsorship tier" };
+  }
+}
+
+export async function reorderSponsorshipTiers(
+  tournamentId: string,
+  orderedIds: string[]
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const db = getDb();
+
+    await Promise.all(
+      orderedIds.map((id, index) =>
+        db
+          .update(sponsorshipTiers)
+          .set({ sortOrder: index, updatedAt: new Date() })
+          .where(
+            and(
+              eq(sponsorshipTiers.id, id),
+              eq(sponsorshipTiers.tournamentId, tournamentId)
+            )
+          )
+      )
+    );
+
+    revalidatePath(`/tournaments/${tournamentId}`);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to reorder sponsorship tiers:", error);
+    return { success: false, error: "Failed to reorder tiers" };
   }
 }
 
