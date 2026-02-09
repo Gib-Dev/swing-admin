@@ -7,6 +7,7 @@ import { TournamentForm } from "@/components/admin/tournament-form";
 import { RegistrationToggle } from "@/components/admin/registration-toggle";
 import { DeleteTournamentButton } from "@/components/admin/delete-tournament-button";
 import { SponsorshipTierList } from "@/components/admin/sponsorship-tier-list";
+import { TeamList } from "@/components/admin/team-list";
 import { updateTournament, toggleRegistration, deleteTournament } from "@/lib/actions/tournament";
 import {
   createSponsorshipTier,
@@ -14,6 +15,14 @@ import {
   deleteSponsorshipTier,
   reorderSponsorshipTiers,
 } from "@/lib/actions/sponsorship-tier";
+import {
+  createTeamForTournament,
+  updateTeamName,
+  deleteTeam,
+  movePlayerToTeam,
+  getTeamsWithPlayers,
+  getUnassignedPlayers,
+} from "@/lib/actions/team";
 import { ExportButton } from "@/components/admin/export-button";
 import { exportTournamentDetailCsv } from "@/lib/actions/export";
 import type { CreateTournamentInput } from "@/lib/validations/tournament";
@@ -51,7 +60,7 @@ export default async function TournamentEditPage({
 
   const db = getDb();
 
-  const [tournament, tiers, soldCounts] = await Promise.all([
+  const [tournament, tiers, soldCounts, teamsData, unassignedPlayers] = await Promise.all([
     db.query.tournaments.findFirst({
       where: eq(tournaments.id, id),
     }),
@@ -71,6 +80,8 @@ export default async function TournamentEditPage({
       )
       .where(eq(sponsorshipTiers.tournamentId, id))
       .groupBy(sponsorships.sponsorshipTierId),
+    getTeamsWithPlayers(id),
+    getUnassignedPlayers(id),
   ]);
 
   const soldMap: Record<string, number> = {};
@@ -109,6 +120,26 @@ export default async function TournamentEditPage({
     return exportTournamentDetailCsv(id);
   }
 
+  async function handleCreateTeam(tournamentId: string, name?: string) {
+    "use server";
+    return createTeamForTournament(tournamentId, name);
+  }
+
+  async function handleUpdateTeamName(teamId: string, name: string) {
+    "use server";
+    return updateTeamName(teamId, name);
+  }
+
+  async function handleDeleteTeam(teamId: string) {
+    "use server";
+    return deleteTeam(teamId);
+  }
+
+  async function handleMovePlayer(playerId: string, targetTeamId: string | null, tournamentId: string) {
+    "use server";
+    return movePlayerToTeam(playerId, targetTeamId, tournamentId);
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
@@ -135,6 +166,15 @@ export default async function TournamentEditPage({
         onUpdate={handleUpdateTier}
         onDelete={deleteSponsorshipTier}
         onReorder={reorderSponsorshipTiers}
+      />
+      <TeamList
+        tournamentId={tournament.id}
+        teams={teamsData}
+        unassignedPlayers={unassignedPlayers}
+        onCreate={handleCreateTeam}
+        onUpdateName={handleUpdateTeamName}
+        onDelete={handleDeleteTeam}
+        onMovePlayer={handleMovePlayer}
       />
     </div>
   );
