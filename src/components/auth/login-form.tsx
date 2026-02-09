@@ -38,7 +38,8 @@ function LoginFormContent() {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(loginSchema) as any,
     defaultValues: {
       email: "",
       password: "",

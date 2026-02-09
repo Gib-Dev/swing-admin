@@ -1,14 +1,21 @@
 import Stripe from "stripe";
 
-const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
+let stripeInstance: Stripe | null = null;
 
-if (!stripeSecretKey) {
-  throw new Error("STRIPE_SECRET_KEY environment variable is not set");
+export function getStripe(): Stripe | null {
+  if (stripeInstance) return stripeInstance;
+
+  const stripeSecretKey = process.env["STRIPE_SECRET_KEY"];
+  if (!stripeSecretKey) {
+    console.warn("Stripe not configured: STRIPE_SECRET_KEY is not set");
+    return null;
+  }
+
+  stripeInstance = new Stripe(stripeSecretKey, {
+    typescript: true,
+  });
+  return stripeInstance;
 }
-
-export const stripe = new Stripe(stripeSecretKey, {
-  typescript: true,
-});
 
 export function formatAmountForStripe(amount: number, currency: string): number {
   const zeroDecimalCurrencies = ["JPY", "KRW", "VND"];

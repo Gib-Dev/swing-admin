@@ -65,7 +65,8 @@ export function EmployeeRegistrationForm({
   const [isValidatingCode, setIsValidatingCode] = useState(false);
 
   const form = useForm<EmployeeRegistrationInput>({
-    resolver: zodResolver(employeeRegistrationSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(employeeRegistrationSchema) as any,
     defaultValues: {
       tournamentId: tournament.id,
       player: {
@@ -154,7 +155,11 @@ export function EmployeeRegistrationForm({
         locale,
       });
       if (result.success) {
-        router.push(`/register/success?type=employee`);
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else {
+          router.push(`/register/success?type=employee`);
+        }
       } else {
         toast.error(result.error ?? tCommon("error"));
       }

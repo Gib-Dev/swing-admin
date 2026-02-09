@@ -36,8 +36,9 @@ export function CreateUserForm({ onSubmit, onCancel }: CreateUserFormProps) {
   const tc = useTranslations("common");
   const [isLoading, setIsLoading] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<CreateUserInput>({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(createUserSchema) as any,
     defaultValues: {
       name: "",
       email: "",

@@ -18,10 +18,11 @@ import {
   type SponsorRegistrationInput,
 } from "@/lib/validations/registration";
 import { generateTeamCode } from "./team";
+import { createCheckoutSession } from "@/lib/stripe/checkout";
 
 export async function createEmployeeRegistration(
   data: EmployeeRegistrationInput & { locale?: string }
-): Promise<{ success: boolean; error?: string; registrationId?: string }> {
+): Promise<{ success: boolean; error?: string; registrationId?: string; checkoutUrl?: string | null }> {
   try {
     const validated = employeeRegistrationSchema.safeParse(data);
     if (!validated.success) {
@@ -127,7 +128,21 @@ export async function createEmployeeRegistration(
       return { registrationId: registration.id };
     });
 
-    return { success: true, registrationId: result.registrationId };
+    // Attempt to create Stripe checkout session
+    const checkout = await createCheckoutSession({
+      registrationId: result.registrationId,
+      amount: parseFloat(tournament.employeeRegistrationPrice),
+      currency: tournament.currency,
+      tournamentName: tournament.name,
+      type: "employee",
+      locale: data.locale ?? "en",
+    });
+
+    return {
+      success: true,
+      registrationId: result.registrationId,
+      checkoutUrl: checkout?.url ?? null,
+    };
   } catch (error) {
     console.error("Failed to create employee registration:", error);
     const message =
@@ -138,7 +153,7 @@ export async function createEmployeeRegistration(
 
 export async function createSponsorRegistration(
   data: SponsorRegistrationInput & { locale?: string }
-): Promise<{ success: boolean; error?: string; registrationId?: string }> {
+): Promise<{ success: boolean; error?: string; registrationId?: string; checkoutUrl?: string | null }> {
   try {
     const validated = sponsorRegistrationSchema.safeParse(data);
     if (!validated.success) {
@@ -259,7 +274,21 @@ export async function createSponsorRegistration(
       return { registrationId: registration.id };
     });
 
-    return { success: true, registrationId: result.registrationId };
+    // Attempt to create Stripe checkout session
+    const checkout = await createCheckoutSession({
+      registrationId: result.registrationId,
+      amount: parseFloat(totalAmount),
+      currency: tournament.currency,
+      tournamentName: tournament.name,
+      type: "sponsor",
+      locale: data.locale ?? "en",
+    });
+
+    return {
+      success: true,
+      registrationId: result.registrationId,
+      checkoutUrl: checkout?.url ?? null,
+    };
   } catch (error) {
     console.error("Failed to create sponsor registration:", error);
     const message =

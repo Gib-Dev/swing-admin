@@ -42,7 +42,8 @@ export function SponsorshipTierForm({
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<CreateSponsorshipTierInput>({
-    resolver: zodResolver(createSponsorshipTierSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(createSponsorshipTierSchema) as any,
     defaultValues: {
       tournamentId,
       name: initialData?.name ?? "",

@@ -44,7 +44,8 @@ export function EditUserForm({ user, onSubmit, onCancel }: EditUserFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<UpdateUserInput>({
-    resolver: zodResolver(updateUserSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(updateUserSchema) as any,
     defaultValues: {
       name: user.name,
       email: user.email,

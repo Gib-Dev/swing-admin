@@ -59,7 +59,8 @@ export function TournamentForm({ initialData, onSubmit }: TournamentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<CreateTournamentInput>({
-    resolver: zodResolver(createTournamentSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(createTournamentSchema) as any,
     defaultValues: {
       name: initialData?.name ?? "",
       description: initialData?.description ?? "",

@@ -68,7 +68,8 @@ export function SponsorRegistrationForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<SponsorRegistrationInput>({
-    resolver: zodResolver(sponsorRegistrationSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(sponsorRegistrationSchema) as any,
     defaultValues: {
       tournamentId: tournament.id,
       selectedTiers: [],
@@ -188,7 +189,11 @@ export function SponsorRegistrationForm({
         locale,
       });
       if (result.success) {
-        router.push(`/register/success?type=sponsor`);
+        if (result.checkoutUrl) {
+          window.location.href = result.checkoutUrl;
+        } else {
+          router.push(`/register/success?type=sponsor`);
+        }
       } else {
         toast.error(result.error ?? tCommon("error"));
       }
