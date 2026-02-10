@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SwingAdmin
+
+Golf tournament management system with admin panel and public registration.
+
+**Live:** https://swing-admin-xi.vercel.app
+
+## Features
+
+- **Tournament Management** -- Create, edit, delete tournaments with search and filtering
+- **Team Management** -- Create teams, assign players, move players between teams
+- **Sponsorship Tiers** -- CRUD with quota tracking, reordering, and progress bars
+- **Public Registration** -- Multi-step employee (3 steps) and sponsor (4 steps) forms
+- **Payments** -- Stripe Checkout integration with webhook handling (optional)
+- **Email** -- Registration confirmation emails via Resend (optional, falls back to console)
+- **Admin Users** -- Role-based access control (super_admin vs admin)
+- **CSV Export** -- Tournament list and detail exports with teams and players
+- **Bilingual** -- Full English and French support (next-intl)
+- **Responsive** -- Mobile hamburger menu, tablet and desktop sidebar
+
+## Tech Stack
+
+- Next.js 16 (Turbopack), TypeScript (strict), Tailwind CSS 4
+- shadcn/ui components, Lucide icons
+- Drizzle ORM, PostgreSQL (Neon in production)
+- NextAuth.js v5 (JWT, credentials provider)
+- Stripe (payments), Resend (email)
+- Zod v4 (validation), next-intl (i18n)
+- Vitest (180 tests, v8 coverage)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20.9+
+- pnpm
+- PostgreSQL 14+
+
+### Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Copy environment file and fill in values
+cp .env.example .env.local
+
+# Push database schema
+pnpm db:push
+
+# Seed admin user and sample data
+pnpm db:seed
+
+# Start dev server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Default admin login: `admin@swingadmin.com` / `admin123!`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | Yes | Random 32-byte base64 string |
+| `NEXTAUTH_URL` | Dev only | `http://localhost:3000` |
+| `STRIPE_SECRET_KEY` | No | Stripe test/live secret key |
+| `STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key |
+| `STRIPE_WEBHOOK_SECRET` | No | Stripe webhook signing secret |
+| `RESEND_API_KEY` | No | Resend API key for emails |
+| `EMAIL_FROM` | No | Sender email address |
 
-## Learn More
+Stripe and Resend are optional -- the app logs to console when keys are missing.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev          # Development server (Turbopack)
+pnpm build        # Production build
+pnpm lint         # ESLint
+pnpm test         # Run tests (Vitest)
+pnpm db:push      # Push schema to database
+pnpm db:seed      # Seed database
+pnpm db:studio    # Open Drizzle Studio
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+  app/
+    [locale]/(admin)/    Admin pages (dashboard, tournaments, users, teams)
+    [locale]/(auth)/     Login page
+    [locale]/(public)/   Public registration and payment pages
+    api/                 Auth and webhook API routes
+  components/
+    admin/               Admin components (sidebar, header, forms)
+    registration/        Public registration form components
+    ui/                  shadcn/ui components
+  lib/
+    actions/             Server actions (tournament, team, registration, export)
+    auth/                NextAuth configuration
+    db/                  Drizzle schema, config, seed
+    email/               Resend client and email templates
+    stripe/              Stripe helpers and checkout
+    validations/         Zod schemas
+  messages/              i18n translation files (en.json, fr.json)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployed on Vercel with Neon PostgreSQL. See [docs/PROGRESS.md](docs/PROGRESS.md) for full development history.
+
+## License
+
+Private.
