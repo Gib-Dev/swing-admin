@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 
-const navItems: {
+export const navItems: {
   key: string;
   href: string;
   icon: React.ReactNode;
