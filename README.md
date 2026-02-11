@@ -71,6 +71,54 @@ Default admin login: `admin@swingadmin.com` / `admin123!`
 
 Stripe and Resend are optional -- the app logs to console when keys are missing.
 
+## Testing the App
+
+### Default credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | `admin@swingadmin.com` | `admin123!` |
+
+### What to explore
+
+| Area | URL | Description |
+|------|-----|-------------|
+| Home / Registration | `/` | Public landing page with employee and sponsor registration cards |
+| Admin Login | `/en/login` | Log in with the credentials above |
+| Dashboard | `/en/dashboard` | Real-time stats pulled from the database |
+| Tournaments | `/en/tournaments` | Create, edit, delete tournaments; toggle registration; CSV export |
+| Teams | `/en/teams` | Create teams, assign and move players between teams |
+| Sponsorships | `/en/sponsorships` | Manage sponsorship tiers, reorder, track quotas |
+| Users | `/en/users` | Admin user management (super_admin only) |
+| French | Change `/en/` to `/fr/` in any URL | Full bilingual support |
+
+### Seeded data
+
+The seed script (`pnpm db:seed`) creates:
+
+- **1 admin user** (super_admin role)
+- **1 tournament** -- "Annual Golf Championship 2026" with registration open
+- **4 sponsorship tiers** -- Bronze ($1,000), Silver ($2,000), Gold ($3,000), Platinum ($5,000)
+
+### Suggested walkthrough
+
+1. Visit `/` -- see the public landing page and click through the employee or sponsor registration flow
+2. Go to `/en/login` and sign in as admin
+3. Explore the dashboard, then navigate to Tournaments to see the seeded tournament
+4. Open the tournament detail page to view teams, players, and sponsorship tiers
+5. Try creating a new tournament, adding teams, and managing users
+6. Switch any URL from `/en/` to `/fr/` to see the French version
+
+### Running the test suite
+
+```bash
+pnpm test          # Watch mode
+pnpm test:run      # Single run
+pnpm test:coverage # With v8 coverage report
+```
+
+180 tests across 12 files covering validations, server actions, Stripe utilities, and email templates.
+
 ## Scripts
 
 ```bash
