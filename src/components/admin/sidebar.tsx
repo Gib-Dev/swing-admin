@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 
 export const navItems: {
   key: string;
@@ -137,7 +138,7 @@ export function AdminSidebar({ userRole }: { userRole?: string }) {
   return (
     <aside className="hidden w-64 flex-col border-r bg-card lg:flex">
       <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="h-8 w-8 rounded-full bg-primary" />
+        <Logo size={32} />
         <span className="text-lg font-bold">SwingAdmin</span>
       </div>
       <nav className="flex-1 space-y-1 p-4">

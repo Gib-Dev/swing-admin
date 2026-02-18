@@ -25,6 +25,7 @@ import { LogOut, User, Menu } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/components/admin/sidebar";
+import { Logo } from "@/components/logo";
 
 export function AdminHeader({ userRole }: { userRole?: string }) {
   const t = useTranslations("auth");
@@ -58,7 +59,7 @@ export function AdminHeader({ userRole }: { userRole?: string }) {
           <SheetContent side="left" className="w-64 p-0">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
             <div className="flex h-16 items-center gap-2 border-b px-6">
-              <div className="h-8 w-8 rounded-full bg-primary" />
+              <Logo size={32} />
               <span className="text-lg font-bold">SwingAdmin</span>
             </div>
             <nav className="flex-1 space-y-1 p-4">
@@ -90,7 +91,7 @@ export function AdminHeader({ userRole }: { userRole?: string }) {
           </SheetContent>
         </Sheet>
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-primary" />
+          <Logo size={32} />
           <span className="text-lg font-bold">SwingAdmin</span>
         </div>
       </div>

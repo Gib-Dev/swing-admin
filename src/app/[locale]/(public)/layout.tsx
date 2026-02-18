@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { Logo } from "@/components/logo";
 
 export default async function PublicLayout({
   children,
@@ -17,7 +18,7 @@ export default async function PublicLayout({
       <header className="border-b bg-white/80 backdrop-blur-sm">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-primary" />
+            <Logo size={32} />
             <span className="text-xl font-bold">SwingAdmin</span>
           </Link>
           <nav className="flex items-center gap-4">
