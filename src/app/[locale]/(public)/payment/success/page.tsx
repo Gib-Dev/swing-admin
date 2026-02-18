@@ -15,7 +15,7 @@ export default async function PaymentSuccessPage({
   const t = await getTranslations("payment");
 
   return (
-    <div className="mx-auto max-w-lg py-16">
+    <div className="mx-auto max-w-lg px-4 py-16">
       <Card>
         <CardContent className="pt-6 text-center">
           <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-100">

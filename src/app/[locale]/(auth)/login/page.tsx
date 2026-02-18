@@ -25,7 +25,7 @@ export default async function LoginPage({
   const t = await getTranslations("auth");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-primary/5 to-background p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-b from-primary/5 to-background p-4">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex justify-center">

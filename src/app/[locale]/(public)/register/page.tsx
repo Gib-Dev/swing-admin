@@ -37,7 +37,7 @@ export default async function RegisterPage({
 
   if (!tournament) {
     return (
-      <div className="mx-auto max-w-lg py-16 text-center">
+      <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +86,7 @@ export default async function RegisterPage({
       .orderBy(sponsorshipTiers.sortOrder);
 
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold">{t("sponsorTitle")}</h1>
           <p className="text-muted-foreground">{tournament.name}</p>
@@ -106,7 +106,7 @@ export default async function RegisterPage({
 
   // Default: employee registration
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-8 text-center">
         <h1 className="mb-2 text-3xl font-bold">{t("employeeTitle")}</h1>
         <p className="text-muted-foreground">{tournament.name}</p>

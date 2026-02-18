@@ -255,5 +255,32 @@
     "invalidDate": "Please enter a valid date",
     "invalidPhone": "Please enter a valid phone number",
     "invalidTeamCode": "Team code must be 6 uppercase alphanumeric characters"
+  },
+  "home": {
+    "heroEyebrow": "Annual Golf Tournament",
+    "heroTitleFallback": "Annual Golf Championship 2026",
+    "heroSubtitle": "Join the premier corporate golf tournament. Play, connect, and compete for the championship.",
+    "heroCta": "Register Now",
+    "statsTeams": "Teams Registered",
+    "statsPlayers": "Players",
+    "statsSponsors": "Sponsors",
+    "howToJoin": "How to Participate",
+    "howToJoinSubtitle": "Choose the registration type that best suits you",
+    "employeeCardTitle": "Employee Registration",
+    "employeeCardBullet1": "Join or create a team of 4",
+    "employeeCardBullet2": "Compete for the championship",
+    "employeeCardBullet3": "Enjoy the full tournament experience",
+    "employeeCta": "Register as Employee",
+    "sponsorCardTitle": "Sponsor Registration",
+    "sponsorCardBullet1": "Select a sponsorship tier",
+    "sponsorCardBullet2": "Brand visibility at the event",
+    "sponsorCardBullet3": "Support and engage your employees",
+    "sponsorCta": "Become a Sponsor",
+    "footerTagline": "Professional golf tournament management for corporate events.",
+    "footerQuickLinks": "Quick Links",
+    "footerRegisterEmployee": "Register as Employee",
+    "footerRegisterSponsor": "Register as Sponsor",
+    "footerAdminLogin": "Admin Login",
+    "footerRights": "All rights reserved."
   }
 }

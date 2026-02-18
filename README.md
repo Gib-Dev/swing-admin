@@ -58,16 +58,16 @@ Default admin login: `admin@swingadmin.com` / `admin123!`
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | Yes | Random 32-byte base64 string |
-| `NEXTAUTH_URL` | Dev only | `http://localhost:3000` |
-| `STRIPE_SECRET_KEY` | No | Stripe test/live secret key |
-| `STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key |
-| `STRIPE_WEBHOOK_SECRET` | No | Stripe webhook signing secret |
-| `RESEND_API_KEY` | No | Resend API key for emails |
-| `EMAIL_FROM` | No | Sender email address |
+| Variable                 | Required | Description                   |
+| ------------------------ | -------- | ----------------------------- |
+| `DATABASE_URL`           | Yes      | PostgreSQL connection string  |
+| `NEXTAUTH_SECRET`        | Yes      | Random 32-byte base64 string  |
+| `NEXTAUTH_URL`           | Dev only | `http://localhost:3000`       |
+| `STRIPE_SECRET_KEY`      | No       | Stripe test/live secret key   |
+| `STRIPE_PUBLISHABLE_KEY` | No       | Stripe publishable key        |
+| `STRIPE_WEBHOOK_SECRET`  | No       | Stripe webhook signing secret |
+| `RESEND_API_KEY`         | No       | Resend API key for emails     |
+| `EMAIL_FROM`             | No       | Sender email address          |
 
 Stripe and Resend are optional -- the app logs to console when keys are missing.
 
@@ -75,22 +75,22 @@ Stripe and Resend are optional -- the app logs to console when keys are missing.
 
 ### Default credentials
 
-| Role | Email | Password |
-|------|-------|----------|
+| Role        | Email                  | Password    |
+| ----------- | ---------------------- | ----------- |
 | Super Admin | `admin@swingadmin.com` | `admin123!` |
 
 ### What to explore
 
-| Area | URL | Description |
-|------|-----|-------------|
-| Home / Registration | `/` | Public landing page with employee and sponsor registration cards |
-| Admin Login | `/en/login` | Log in with the credentials above |
-| Dashboard | `/en/dashboard` | Real-time stats pulled from the database |
-| Tournaments | `/en/tournaments` | Create, edit, delete tournaments; toggle registration; CSV export |
-| Teams | `/en/teams` | Create teams, assign and move players between teams |
-| Sponsorships | `/en/sponsorships` | Manage sponsorship tiers, reorder, track quotas |
-| Users | `/en/users` | Admin user management (super_admin only) |
-| French | Change `/en/` to `/fr/` in any URL | Full bilingual support |
+| Area                | URL                                | Description                                                       |
+| ------------------- | ---------------------------------- | ----------------------------------------------------------------- |
+| Home / Registration | `/`                                | Public landing page with employee and sponsor registration cards  |
+| Admin Login         | `/en/login`                        | Log in with the credentials above                                 |
+| Dashboard           | `/en/dashboard`                    | Real-time stats pulled from the database                          |
+| Tournaments         | `/en/tournaments`                  | Create, edit, delete tournaments; toggle registration; CSV export |
+| Teams               | `/en/teams`                        | Create teams, assign and move players between teams               |
+| Sponsorships        | `/en/sponsorships`                 | Manage sponsorship tiers, reorder, track quotas                   |
+| Users               | `/en/users`                        | Admin user management (super_admin only)                          |
+| French              | Change `/en/` to `/fr/` in any URL | Full bilingual support                                            |
 
 ### Seeded data
 
@@ -157,7 +157,3 @@ src/
 ## Deployment
 
 Deployed on Vercel with Neon PostgreSQL. See [docs/PROGRESS.md](docs/PROGRESS.md) for full development history.
-
-## License
-
-Private.

@@ -255,5 +255,32 @@
     "invalidDate": "Veuillez entrer une date valide",
     "invalidPhone": "Veuillez entrer un numéro de téléphone valide",
     "invalidTeamCode": "Le code d'équipe doit être composé de 6 caractères alphanumériques majuscules"
+  },
+  "home": {
+    "heroEyebrow": "Tournoi de golf annuel",
+    "heroTitleFallback": "Championnat de golf annuel 2026",
+    "heroSubtitle": "Rejoignez le tournoi de golf corporatif par excellence. Jouez, réseautez et rivalisez pour le championnat.",
+    "heroCta": "S'inscrire maintenant",
+    "statsTeams": "Équipes inscrites",
+    "statsPlayers": "Joueurs",
+    "statsSponsors": "Commanditaires",
+    "howToJoin": "Comment participer",
+    "howToJoinSubtitle": "Choisissez le type d'inscription qui vous convient",
+    "employeeCardTitle": "Inscription employé",
+    "employeeCardBullet1": "Rejoignez ou créez une équipe de 4",
+    "employeeCardBullet2": "Concourez pour le championnat",
+    "employeeCardBullet3": "Profitez de l'expérience complète du tournoi",
+    "employeeCta": "S'inscrire comme employé",
+    "sponsorCardTitle": "Inscription commanditaire",
+    "sponsorCardBullet1": "Sélectionnez un niveau de commandite",
+    "sponsorCardBullet2": "Visibilité de votre marque à l'événement",
+    "sponsorCardBullet3": "Soutenez et mobilisez vos employés",
+    "sponsorCta": "Devenir commanditaire",
+    "footerTagline": "Gestion professionnelle de tournois de golf pour événements corporatifs.",
+    "footerQuickLinks": "Liens rapides",
+    "footerRegisterEmployee": "Inscription employé",
+    "footerRegisterSponsor": "Inscription commanditaire",
+    "footerAdminLogin": "Connexion admin",
+    "footerRights": "Tous droits réservés."
   }
 }
