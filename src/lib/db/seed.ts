@@ -25,8 +25,13 @@ async function seed() {
 
   const db = getDb();
 
-  // Create admin user
-  const passwordHash = await bcrypt.hash("admin123!", 10);
+  // Create admin user. Set SEED_ADMIN_PASSWORD for any shared or deployed database;
+  // the fallback is for local development only.
+  const adminPassword = process.env["SEED_ADMIN_PASSWORD"] ?? "admin123!";
+  if (!process.env["SEED_ADMIN_PASSWORD"]) {
+    console.warn("SEED_ADMIN_PASSWORD not set: using the local development default.");
+  }
+  const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   const [adminUser] = await db
     .insert(users)

@@ -1,137 +1,117 @@
 # SwingAdmin
 
-Golf tournament management system with admin panel and public registration.
+Golf tournament management system: an admin panel for organizers and a public, bilingual registration flow for employees and sponsors, with online payments.
 
-**Live:** https://swing-admin-xi.vercel.app
+**Live demo:** https://swing-admin-xi.vercel.app · **Case study:** https://magib.tech/projects/swing-admin
+
+> Solo project by [Magib Biteye](https://magib.tech): requirements, database design, front end, back end, tests and deployment.
+
+## Highlights
+
+- **180 unit tests** (Vitest, v8 coverage) across validations, server actions, Stripe utilities and email templates
+- **Role-based access control**: `super_admin` and `admin` roles, credentials sign-in with NextAuth.js v5 (JWT sessions), bcrypt password hashing
+- **Payments**: Stripe Checkout with webhook handling
+- **Bilingual EN/FR** end to end with next-intl, including confirmation emails (Resend)
+- **Validated inputs**: Zod v4 schemas on the tournament, registration, sponsorship-tier and user server actions
+- **Relational data model**: tournaments, teams, players, registrations, sponsorship tiers and sponsorships in PostgreSQL via Drizzle ORM
 
 ## Features
 
-- **Tournament Management** -- Create, edit, delete tournaments with search and filtering
-- **Team Management** -- Create teams, assign players, move players between teams
-- **Sponsorship Tiers** -- CRUD with quota tracking, reordering, and progress bars
-- **Public Registration** -- Multi-step employee (3 steps) and sponsor (4 steps) forms
-- **Payments** -- Stripe Checkout integration with webhook handling (optional)
-- **Email** -- Registration confirmation emails via Resend (optional, falls back to console)
-- **Admin Users** -- Role-based access control (super_admin vs admin)
-- **CSV Export** -- Tournament list and detail exports with teams and players
-- **Bilingual** -- Full English and French support (next-intl)
-- **Responsive** -- Mobile hamburger menu, tablet and desktop sidebar
+- **Tournament management**: create, edit, delete, search and filter; open or close registration
+- **Teams**: create teams, assign players, move players between teams
+- **Sponsorship tiers**: CRUD with quota tracking, reordering and progress bars
+- **Public registration**: multi-step forms for employees (3 steps) and sponsors (4 steps)
+- **Payments and email**: Stripe Checkout and Resend confirmations, both optional (the app logs to the console when keys are missing)
+- **Admin users**: user management restricted to `super_admin`
+- **CSV export**: tournament lists and details with teams and players
+- **Responsive**: mobile menu, sidebar on tablet and desktop
 
-## Tech Stack
+## Architecture
 
-- Next.js 16 (Turbopack), TypeScript (strict), Tailwind CSS 4
-- shadcn/ui components, Lucide icons
-- Drizzle ORM, PostgreSQL (Neon in production)
-- NextAuth.js v5 (JWT, credentials provider)
-- Stripe (payments), Resend (email)
-- Zod v4 (validation), next-intl (i18n)
-- Vitest (180 tests, v8 coverage)
+```
+Browser ── Next.js 16 App Router (React Server Components, next-intl routing /en, /fr)
+              │
+              ├── Server Actions ── Zod validation + role checks (NextAuth.js v5, JWT)
+              │        │
+              │        └── Drizzle ORM ── PostgreSQL (Neon in production)
+              │
+              ├── /api/auth           NextAuth credentials provider
+              └── /api/webhooks       Stripe webhook (payment confirmation)
+                                        └── Resend (bilingual confirmation emails)
+```
 
-## Getting Started
+### Technical decisions
 
-### Prerequisites
+| Decision | Why |
+| --- | --- |
+| Server Actions instead of a separate REST API | Mutations live next to the UI that uses them, with typed inputs and one validation layer (Zod) |
+| Drizzle ORM over Prisma | Lighter runtime, SQL-like queries, strong TypeScript inference |
+| NextAuth.js v5 with JWT sessions | First-class App Router support, no session table needed |
+| `proxy.ts` (Next.js 16) for route protection | Locale routing and admin-area protection in one place |
+| Optional Stripe and Resend | The app runs end to end locally without third-party keys |
 
-- Node.js 20.9+
-- pnpm
-- PostgreSQL 14+
+## Tech stack
 
-### Setup
+Next.js 16 (Turbopack) · TypeScript (strict) · Tailwind CSS 4 · shadcn/ui · Drizzle ORM · PostgreSQL (Neon) · NextAuth.js v5 · Stripe · Resend · next-intl · Zod v4 · Vitest
+
+## Getting started
+
+Requires Node.js 20.9+, pnpm and PostgreSQL 14+.
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Copy environment file and fill in values
-cp .env.example .env.local
-
-# Push database schema
-pnpm db:push
-
-# Seed admin user and sample data
-pnpm db:seed
-
-# Start dev server
+cp .env.example .env.local   # fill in DATABASE_URL and NEXTAUTH_SECRET at minimum
+pnpm db:push                 # create the schema
+pnpm db:seed                 # admin user, a sample tournament and sponsorship tiers
 pnpm dev
 ```
 
-Default admin login: `admin@swingadmin.com` / `admin123!`
+The seed creates a `super_admin` account (`admin@swingadmin.com`). Its password comes from `SEED_ADMIN_PASSWORD`; without it, a local development default is used, so always set it for a shared or deployed database.
 
-### Environment Variables
+### Environment variables
 
-| Variable                 | Required | Description                   |
-| ------------------------ | -------- | ----------------------------- |
-| `DATABASE_URL`           | Yes      | PostgreSQL connection string  |
-| `NEXTAUTH_SECRET`        | Yes      | Random 32-byte base64 string  |
-| `NEXTAUTH_URL`           | Dev only | `http://localhost:3000`       |
-| `STRIPE_SECRET_KEY`      | No       | Stripe test/live secret key   |
-| `STRIPE_PUBLISHABLE_KEY` | No       | Stripe publishable key        |
-| `STRIPE_WEBHOOK_SECRET`  | No       | Stripe webhook signing secret |
-| `RESEND_API_KEY`         | No       | Resend API key for emails     |
-| `EMAIL_FROM`             | No       | Sender email address          |
+| Variable | Required | Description |
+| --- | --- | --- |
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | Yes | Random 32-byte base64 string |
+| `NEXTAUTH_URL` | Dev only | `http://localhost:3000` |
+| `SEED_ADMIN_PASSWORD` | For deployed DBs | Password for the seeded admin account |
+| `STRIPE_SECRET_KEY` | No | Stripe test or live secret key |
+| `STRIPE_PUBLISHABLE_KEY` | No | Stripe publishable key |
+| `STRIPE_WEBHOOK_SECRET` | No | Stripe webhook signing secret |
+| `RESEND_API_KEY` | No | Resend API key for emails |
+| `EMAIL_FROM` | No | Sender email address |
 
-Stripe and Resend are optional -- the app logs to console when keys are missing.
-
-## Testing the App
-
-### Default credentials
-
-| Role        | Email                  | Password    |
-| ----------- | ---------------------- | ----------- |
-| Super Admin | `admin@swingadmin.com` | `admin123!` |
-
-### What to explore
-
-| Area                | URL                                | Description                                                       |
-| ------------------- | ---------------------------------- | ----------------------------------------------------------------- |
-| Home / Registration | `/`                                | Public landing page with employee and sponsor registration cards  |
-| Admin Login         | `/en/login`                        | Log in with the credentials above                                 |
-| Dashboard           | `/en/dashboard`                    | Real-time stats pulled from the database                          |
-| Tournaments         | `/en/tournaments`                  | Create, edit, delete tournaments; toggle registration; CSV export |
-| Teams               | `/en/teams`                        | Create teams, assign and move players between teams               |
-| Sponsorships        | `/en/sponsorships`                 | Manage sponsorship tiers, reorder, track quotas                   |
-| Users               | `/en/users`                        | Admin user management (super_admin only)                          |
-| French              | Change `/en/` to `/fr/` in any URL | Full bilingual support                                            |
-
-### Seeded data
-
-The seed script (`pnpm db:seed`) creates:
-
-- **1 admin user** (super_admin role)
-- **1 tournament** -- "Annual Golf Championship 2026" with registration open
-- **4 sponsorship tiers** -- Bronze ($1,000), Silver ($2,000), Gold ($3,000), Platinum ($5,000)
-
-### Suggested walkthrough
-
-1. Visit `/` -- see the public landing page and click through the employee or sponsor registration flow
-2. Go to `/en/login` and sign in as admin
-3. Explore the dashboard, then navigate to Tournaments to see the seeded tournament
-4. Open the tournament detail page to view teams, players, and sponsorship tiers
-5. Try creating a new tournament, adding teams, and managing users
-6. Switch any URL from `/en/` to `/fr/` to see the French version
-
-### Running the test suite
+### Scripts
 
 ```bash
-pnpm test          # Watch mode
-pnpm test:run      # Single run
-pnpm test:coverage # With v8 coverage report
+pnpm dev            # Development server (Turbopack)
+pnpm build          # Production build
+pnpm lint           # ESLint
+pnpm test           # Vitest (watch)
+pnpm test:run       # Single run
+pnpm test:coverage  # With v8 coverage report
+pnpm db:push        # Push schema to the database
+pnpm db:seed        # Seed the database
+pnpm db:studio      # Drizzle Studio
 ```
 
-180 tests across 12 files covering validations, server actions, Stripe utilities, and email templates.
+## Exploring the app locally
 
-## Scripts
+| Area | URL | What to try |
+| --- | --- | --- |
+| Public registration | `/` | Employee or sponsor registration flow |
+| Admin login | `/en/login` | Sign in with the seeded admin account |
+| Dashboard | `/en/dashboard` | Stats pulled from the database |
+| Tournaments | `/en/tournaments` | CRUD, registration toggle, CSV export |
+| Teams | `/en/teams` | Assign and move players |
+| Sponsorships | `/en/sponsorships` | Tiers, ordering, quotas |
+| Users | `/en/users` | Admin user management (`super_admin` only) |
+| French | `/fr/...` | Same pages in French |
 
-```bash
-pnpm dev          # Development server (Turbopack)
-pnpm build        # Production build
-pnpm lint         # ESLint
-pnpm test         # Run tests (Vitest)
-pnpm db:push      # Push schema to database
-pnpm db:seed      # Seed database
-pnpm db:studio    # Open Drizzle Studio
-```
+The public demo shows the registration side; admin access to the demo is shared on request.
 
-## Project Structure
+## Project structure
 
 ```
 src/
@@ -139,21 +119,33 @@ src/
     [locale]/(admin)/    Admin pages (dashboard, tournaments, users, teams)
     [locale]/(auth)/     Login page
     [locale]/(public)/   Public registration and payment pages
-    api/                 Auth and webhook API routes
+    api/                 Auth and Stripe webhook routes
   components/
     admin/               Admin components (sidebar, header, forms)
     registration/        Public registration form components
     ui/                  shadcn/ui components
   lib/
-    actions/             Server actions (tournament, team, registration, export)
+    actions/             Server actions + their tests
     auth/                NextAuth configuration
-    db/                  Drizzle schema, config, seed
+    db/                  Drizzle schema, client, seed
     email/               Resend client and email templates
     stripe/              Stripe helpers and checkout
     validations/         Zod schemas
-  messages/              i18n translation files (en.json, fr.json)
+  messages/              Translations (en.json, fr.json)
 ```
+
+More detail in [docs/](docs/): [API](docs/API.md), [database schema](docs/DATABASE.md), [setup](docs/SETUP.md), [development log](docs/PROGRESS.md).
+
+## Known limitations
+
+- No read-only demo role yet, so admin access to the public demo is not shared openly
+- Tests are unit tests; the registration and payment flow has no end-to-end tests yet
+
+## Next steps
+
+- Read-only demo role so visitors can explore the admin panel safely
+- End-to-end tests (Playwright) for registration and payment
 
 ## Deployment
 
-Deployed on Vercel with Neon PostgreSQL. See [docs/PROGRESS.md](docs/PROGRESS.md) for full development history.
+Deployed on Vercel with a Neon PostgreSQL database.
